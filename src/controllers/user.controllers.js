@@ -1,11 +1,18 @@
 const User = require("../models/user.model");
+const UserHasRole = require("../models/user_has_role.model");
 const validator = require("validator");
 const crypto = require("crypto");
 
-
 const CreateUser = async (req, res) => {
   try {
-    const { first_name, last_name, email, password } = req.body;
+    const {
+      first_name,
+      last_name,
+      email: userEmail,
+      password,
+      role_id,
+    } = req.body;
+    const email = userEmail.toLowerCase();
     if (!first_name)
       return res
         .status(200)
@@ -26,13 +33,16 @@ const CreateUser = async (req, res) => {
       });
     if (!validator.isEmail(email))
       return res.status(200).json({ success: false, message: "invalid email" });
-    if (!validator.isStrongPassword(password))
+    if (!role_id)
       return res
         .status(200)
-        .json({ success: false, message: "entered password is too week" });
+        .json({ success: false, message: "role is required" });
 
     const user = new User({ first_name, last_name, email, password });
+    const userhasrole = new UserHasRole({ user_id: user._id, role_id });
     await user.save();
+    await userhasrole.save();
+
     return res
       .status(200)
       .json({ success: true, message: "User created successfully" });
@@ -111,7 +121,9 @@ const Login = async (req, res) => {
         success: false,
         message: "invalid password",
       });
-    const loggedUser = await User.findOne({ email }).select("-password -reset_password_token");
+    const loggedUser = await User.findOne({ email }).select(
+      "-password -reset_password_token"
+    );
     return res
       .status(200)
       .cookie("token", isExists.generateAuthToken(), {

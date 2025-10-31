@@ -4,13 +4,16 @@ const CreatePermission = async (req, res) => {
     const { name, group } = req.body;
     if (!name)
       return res
-        .status(200)
+        .status(400)
         .json({ message: "permission name is required", success: false });
     if (!group)
       return res
-        .status(200)
+        .status(400)
         .json({ message: "module name is required", success: false });
-    const permission = new Permission({ name });
+    const permission = new Permission({
+      name: name.toLowerCase(),
+      group: group.toLowerCase(),
+    });
     permission.save();
     return res
       .status(200)

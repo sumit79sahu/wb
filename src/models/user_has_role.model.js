@@ -1,11 +1,14 @@
 const { Schema, model } = require("mongoose");
-const userhasroleSchema = new Schema(
+
+const userHasRoleSchema = new Schema(
   {
     user_id: {
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     role_id: {
+      type: Schema.Types.ObjectId,
       ref: "Role",
       required: true,
     },
@@ -15,4 +18,4 @@ const userhasroleSchema = new Schema(
   }
 );
 
-module.exports = new model("UserHasRole", userhasroleSchema);
+module.exports = model("UserHasRole", userHasRoleSchema);
