@@ -45,7 +45,7 @@ userSchema.methods.generateAuthToken = function () {
     },
     "privateKey",
     {
-      expiresIn: "1d",
+      expiresIn: "1y",
     }
   );
   return token;

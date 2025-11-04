@@ -10,7 +10,7 @@ const CreateUser = async (req, res) => {
       last_name,
       email: userEmail,
       password,
-      role_id,
+      role,
     } = req.body;
     const email = userEmail.toLowerCase();
     if (!first_name)
@@ -33,13 +33,13 @@ const CreateUser = async (req, res) => {
       });
     if (!validator.isEmail(email))
       return res.status(200).json({ success: false, message: "invalid email" });
-    if (!role_id)
+    if (!role)
       return res
         .status(200)
         .json({ success: false, message: "role is required" });
 
     const user = new User({ first_name, last_name, email, password });
-    const userhasrole = new UserHasRole({ user_id: user._id, role_id });
+    const userhasrole = new UserHasRole({ user: user._id, role });
     await user.save();
     await userhasrole.save();
 
@@ -65,9 +65,23 @@ const GetUsers = async (_, res) => {
 const GetUser = async (req, res) => {
   const { id } = req.params;
   try {
-    const user = await User.findOne({ _id: id });
-    return res.status(200).json({ success: true, message: "", data: user });
-  } catch (error) {
+    if (!id)
+      return res
+        .status(400)
+        .json({ message: "Invalid user id", success: false });
+    const data = await UserHasRole.findOne({ user: id })
+      .populate("user")
+      .select("-_id");
+
+    return res.status(200).json({
+      success: true,
+      message: "",
+      data: {
+        ...data.user.toObject(),
+        role: data.role,
+      },
+    });
+  } catch (err) {
     return res
       .status(500)
       .json({ message: "Server error", error: err.message });
@@ -76,20 +90,27 @@ const GetUser = async (req, res) => {
 const EditUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { first_name, last_name } = req.body;
-    if (!first_name || !last_name)
+    const { first_name, last_name, role } = req.body;
+    if (!first_name || !last_name || !role)
       return res.status(400).json({ success: false, message: "Invalid Data" });
 
     const response = await User.findOneAndUpdate(
       { _id: id },
       { first_name, last_name },
-      { new: true }
-    ).select("-password");
+      { new: true, runValidators: true, projection: { password: 0 } }
+    );
+    if (role) {
+      await UserHasRole.findOneAndUpdate(
+        { user: id },
+        { $set: { role: role } },
+        { new: true }
+      );
+    }
 
     return res.status(200).json({
       success: true,
       message: "user updated successfully",
-      data: response,
+      data: { ...response, role: role },
     });
   } catch (err) {
     return res
@@ -127,7 +148,7 @@ const Login = async (req, res) => {
     return res
       .status(200)
       .cookie("token", isExists.generateAuthToken(), {
-        expires: new Date(Date.now() + 900000),
+        expires: new Date(Date.now() + 31536000000),
         httpOnly: true, // cannot be access on client side
         secure: false, // false worked on http  true:worked only on https
       })
@@ -241,6 +262,64 @@ const ResetPassword = async (req, res) => {
   }
 };
 
+const Me = async (req, res) => {
+  try {
+    const user = await User.aggregate([
+      {
+        $match: { _id: req.user._id },
+      },
+      {
+        $lookup: {
+          from: "userhasroles",
+          localField: "_id",
+          foreignField: "user",
+          as: "userRole",
+        },
+      },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "userRole.role",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      {
+        $lookup: {
+          from: "rolehaspermissions",
+          localField: "role._id",
+          foreignField: "role_id",
+          as: "rolepermission",
+        },
+      },
+      {
+        $lookup: {
+          from: "permissions",
+          localField: "rolepermission.permission_id",
+          foreignField: "_id",
+          as: "permissions",
+        },
+      },
+      {
+        $project: {
+          first_name: 1,
+          last_name: 1,
+          email: 1,
+          role: { $arrayElemAt: ["$role.name", 0] },
+          permissions: "$permissions.name",
+        },
+      },
+    ]);
+    return res.status(200).json({
+      message: "User Data Retrieved Successfully",
+      status: true,
+      data: user[0],
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 module.exports = {
   CreateUser,
   GetUsers,
@@ -250,4 +329,5 @@ module.exports = {
   Logout,
   SendResetPasswordURL,
   ResetPassword,
+  Me,
 };

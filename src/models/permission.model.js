@@ -7,7 +7,7 @@ const permissionSchema = new Schema(
       required: true,
       trim: true,
     },
-    group: { type: String, unique: true, required: true, trim: true },
+    group: { type: String, required: true, trim: true },
   },
   { timestamps: true }
 );

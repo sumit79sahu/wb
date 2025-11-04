@@ -26,27 +26,38 @@ const CreateRole = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Server error", error: err.message });
+      .json({ message: "Server error", error: error.message });
   }
 };
 
-// const AssginRoleToUser = async (req, res) => {
-//   try {
-//     const { user_id, role_id } = req.body;
+const GetRoles = async (req, res) => {
+  try {
+    const roles = await Role.aggregate([
+      {
+        $lookup: {
+          from: "rolehaspermissions",
+          localField: "_id",
+          foreignField: "role_id",
+          as: "rolePermissions",
+        },
+      },
+      {
+        $lookup: {
+          from: "permissions",
+          localField: "rolePermissions.permission_id",
+          foreignField: "_id",
+          as: "permissions",
+        },
+      },
+    ]);
+    return res
+      ?.status(200)
+      .json({ message: "roles fetched successfully", data: roles });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
 
-//     if (!user_id)
-//       return res
-//         .status(400)
-//         .json({ message: "user_id is defined", success: false });
-//     if (!role_id)
-//       return res
-//         .status(400)
-//         .json({ message: "role_id is defined", success: false });
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .json({ message: "Server error", error: err.message });
-//   }
-// };
-
-module.exports = { CreateRole };
+module.exports = { CreateRole, GetRoles };
