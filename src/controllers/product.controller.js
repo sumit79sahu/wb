@@ -11,11 +11,7 @@ const CreateProduct=async(req,res)=>{
                 message:"product name is required"
             })
         }
-
-        const product=new Product({
-
-        })
-
+        
     } catch (error) {
         
     }

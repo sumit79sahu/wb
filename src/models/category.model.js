@@ -1,6 +1,10 @@
 const { Schema,model } = require("mongoose");
 
 const CategorySchema = new Schema({
+  parent_id:{
+    type:Schema.Types.ObjectId,
+    ref:"Category"
+  },
   name: {
     type: String,
     required: true,
@@ -11,6 +15,7 @@ const CategorySchema = new Schema({
   status: {
     type: Boolean,
     required: true,
+    default: true,
   },
 });
 
