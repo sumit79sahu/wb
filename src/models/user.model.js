@@ -43,7 +43,7 @@ userSchema.methods.generateAuthToken = function () {
       _id: this._id,
       email: this.email,
     },
-    "privateKey",
+    process.env.SECERT_KEY,
     {
       expiresIn: "1y",
     }

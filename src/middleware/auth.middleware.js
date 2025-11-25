@@ -7,7 +7,7 @@ const VerifyUser = async (req, res, next) => {
     if (!token) {
       res.status(401).json({ message: "Unauthorized request" });
     }
-    const { _id } = await jwt.verify(token, "privateKey");
+    const { _id } = await jwt.verify(token, process.env.SECERT_KEY);
     const user = await User.findOne({ _id }).select("-password");
     if (user) {
       req.user = user;

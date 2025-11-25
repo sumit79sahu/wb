@@ -1,10 +1,12 @@
+
+require('dotenv').config()
 const { connect } = require("./config/db.js");
 const { app } = require("./app.js");
 
 connect()
   .then(() => {
-    app.listen(7777, () => {
-      console.log("http://localhost:7777");
+    app.listen(process.env.PORT, () => {
+      console.log(`http://localhost:${process.env.PORT}`);
     });
   })
   .catch((err) => {
