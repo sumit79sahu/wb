@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const UserHasRole = require("../models/user_has_role.model");
+const { sendEmail } = require("../utils/email");
 const validator = require("validator");
 const crypto = require("crypto");
 
@@ -96,7 +97,7 @@ const EditUser = async (req, res) => {
 
     const response = await User.findOneAndUpdate(
       { _id: id },
-      { first_name, last_name },
+      { $set: { first_name, last_name } },
       { new: true, runValidators: true, projection: { password: 0 } }
     );
     if (role) {
@@ -199,10 +200,16 @@ const SendResetPasswordURL = async (req, res) => {
         success: false,
         message: "invalid redirect url",
       });
+
+    await sendEmail(
+      email,
+      "Reset Your Password",
+      await isExists.generateResetPasswordLink(redirectURL)
+    );
+
     return res.status(200).json({
       success: true,
       message: "email send successfully",
-      data: await isExists.generateResetPasswordLink(redirectURL),
     });
   } catch (error) {
     return res
