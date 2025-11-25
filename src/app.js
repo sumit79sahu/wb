@@ -6,12 +6,12 @@ const roleRouter = require("./routes/role.route");
 const permissionRouter = require("./routes/permission.route");
 const categoryRouter = require("./routes/category.route");
 const attributeRouter = require("./routes/attribute.route");
+const productRouter = require("./routes/product.route");
 
 const app = express();
 
 app.use(express.json({ limit: "16kb" }));
 app.use(cookieParser());
-
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/role", roleRouter);
@@ -20,6 +20,6 @@ app.use("/api/v1/permission", permissionRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/attribute", attributeRouter);
 
-
+app.use("/api/v1/product", productRouter);
 
 module.exports = { app };
