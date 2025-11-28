@@ -9,7 +9,7 @@ const CreateAttribute = async (req, res) => {
         .json({ message: "attribute name is required", success: false });
     }
 
-    if (values || !Array.isArray(values) || values.length === 0) {
+    if (!values || !Array.isArray(values) || values.length === 0) {
       return res
         .status(200)
         .json({ message: "Invalid attribute values", success: false });

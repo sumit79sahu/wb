@@ -8,9 +8,9 @@ const VariationSchema = new Schema({
   },
   attributes: [
     {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: "attribute",
+      _id: false,
+      name: String,
+      value: String,
     },
   ],
   status: {
