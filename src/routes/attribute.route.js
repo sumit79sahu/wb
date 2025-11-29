@@ -1,6 +1,5 @@
-const Router=require("express");
+const Router = require("express");
 const { VerifyUser } = require("../middleware/auth.middleware");
-   
 
 const {
   CreateAttribute,
@@ -10,7 +9,6 @@ const {
 } = require("../controllers/attribute.controller");
 
 const attributeRouter = Router();
-
 
 attributeRouter.use(VerifyUser);
 attributeRouter.post("/create-attribute", CreateAttribute);

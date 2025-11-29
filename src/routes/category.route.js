@@ -9,7 +9,6 @@ const {
   GetCategory,
 } = require("../controllers/category.controller");
 
-
 categoryRouter.use(VerifyUser);
 
 categoryRouter.post("/create-category", CreateCategory);
@@ -17,5 +16,4 @@ categoryRouter.put("/edit-category/:id", EditCategory);
 categoryRouter.get("/get-categories", GetCategories);
 categoryRouter.get("/:id", GetCategory);
 
-
-module.exports = categoryRouter;    
+module.exports = categoryRouter;

@@ -14,7 +14,7 @@ const CreateCategory = async (req, res) => {
       parent_id,
       status,
     });
-    category.save();
+    await category.save();
     return res
       .status(200)
       .json({ message: "category created successfully", success: true });
