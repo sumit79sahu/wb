@@ -1,4 +1,4 @@
-const Router=requier("express");
+const Router=require("express");
 const { VerifyUser } = require("../middleware/auth.middleware");
    
 

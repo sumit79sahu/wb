@@ -7,14 +7,15 @@ const VariationSchema=new Schema({
     },
     attributes:[{
         type:Schema.Types.ObjectId,
-        required:true
+        required:true,
+        ref:"attribute"
     }],
     status:{
         type:Boolean,
         required:true
     },
     price:{
-        type:String,
+        type:Number,
         required:true
     }
 })

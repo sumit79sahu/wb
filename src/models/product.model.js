@@ -14,7 +14,7 @@ const ProductSchema = new Schema({
     required: true,
     default:true
   },
-  descriptions: {
+  description: {
     type: String,
   },
   variations: [
@@ -24,5 +24,7 @@ const ProductSchema = new Schema({
     },
   ],
 });
+
+
 
 module.exports = model("Product", ProductSchema);
