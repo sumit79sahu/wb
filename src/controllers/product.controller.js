@@ -111,4 +111,28 @@ const ChangeProductStatus = async (req, res) => {
   }
 };
 
-module.exports = { CreateProduct, ChangeProductStatus, CreateVariation };
+const GetProducts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const sort=req.query.sort || "createdAt";
+    const order=parseInt(req.query.order) || -1
+    const skip = (page - 1) * limit;
+    const total = await Product.estimatedDocumentCount();
+    const products = await Product.find({}).sort({[sort]:order}).skip(skip).limit(limit);
+    return res.status(200).json({
+      message: "product fetch successfully",
+      data: { page, pageSize:products.length, total, products },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "server error", success: false });
+  }
+};
+
+module.exports = {
+  CreateProduct,
+  ChangeProductStatus,
+  CreateVariation,
+  GetProducts,
+};
