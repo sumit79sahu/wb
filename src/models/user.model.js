@@ -58,7 +58,7 @@ userSchema.methods.generateResetPasswordLink = async function (url) {
     .update(token)
     .digest("hex");
   await this.save({ validateBeforeSave: true });
-  return url + "/reset-password?token=" + token;
+  return url + "?token=" + token;
 };
 
 userSchema.methods.isPasswordCorrect = async function (pwd) {
