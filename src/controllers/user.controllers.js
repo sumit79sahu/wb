@@ -143,9 +143,54 @@ const Login = async (req, res) => {
         success: false,
         message: "invalid password",
       });
-    const loggedUser = await User.findOne({ email }).select(
-      "-password -reset_password_token"
-    );
+    const loggedUser = await User.aggregate([
+      {
+        $match: {
+          email,
+        },
+      },
+      {
+        $lookup: {
+          from: "userhasroles",
+          localField: "_id",
+          foreignField: "user",
+          as: "userRole",
+        },
+      },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "userRole.role",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      {
+        $lookup: {
+          from: "rolehaspermissions",
+          localField: "role._id",
+          foreignField: "role_id",
+          as: "rolepermission",
+        },
+      },
+      {
+        $lookup: {
+          from: "permissions",
+          localField: "rolepermission.permission_id",
+          foreignField: "_id",
+          as: "permissions",
+        },
+      },
+      {
+        $project: {
+          first_name: 1,
+          last_name: 1,
+          email: 1,
+          role: { $arrayElemAt: ["$role.name", 0] },
+          permissions: "$permissions.name",
+        },
+      },
+    ]);
     return res
       .status(200)
       .cookie("token", isExists.generateAuthToken(), {
@@ -156,7 +201,7 @@ const Login = async (req, res) => {
       .json({
         success: true,
         message: "login successfully",
-        data: loggedUser,
+        data: loggedUser?.[0],
       });
   } catch (err) {
     return res
