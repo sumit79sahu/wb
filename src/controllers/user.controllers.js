@@ -55,7 +55,9 @@ const CreateUser = async (req, res) => {
 };
 const GetUsers = async (_, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().select(
+      "-password -reset_password_token  -updatedAt -__v"
+    );
     return res.status(200).json({ success: true, message: "", data: users });
   } catch (error) {
     return res

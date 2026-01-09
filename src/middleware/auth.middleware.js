@@ -4,6 +4,7 @@ const User = require("../models/user.model");
 const VerifyUser = async (req, res, next) => {
   try {
     const { token } = req.cookies;
+
     if (!token) {
       res.status(401).json({ message: "Unauthorized request" });
     }
